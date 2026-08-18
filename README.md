@@ -14,10 +14,24 @@ This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift
 
 ## Installation
 
-Clone the repository and build a release executable:
+Clone the repository and run the installation script:
 
 ```sh
-git clone git@github.com:mottzi/SwiftlyKitCLI.git
+git clone https://github.com/mottzi/SwiftlyKitCLI.git
+cd SwiftlyKitCLI
+./install.sh
+```
+
+The installer builds the checked out source code, installs `swiftlykit` to
+`~/.local/bin`, and adds that directory to `PATH` for zsh or Bash when needed.
+Run `./install.sh --help` to see supported installation customization.
+
+### Manual installation
+
+Clone the repository and build the source code:
+
+```sh
+git clone https://github.com/mottzi/SwiftlyKitCLI.git
 cd SwiftlyKitCLI
 swift build -c release
 ```
