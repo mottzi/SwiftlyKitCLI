@@ -17,10 +17,6 @@ let package = Package(
         .macOS(.v13)
     ],
     products: [
-        .library(
-            name: "SwiftlyKitCLI",
-            targets: ["SwiftlyKitCLI"]
-        ),
         .executable(
             name: "swiftlykit",
             targets: ["SwiftlyKitCLIExecutable"]

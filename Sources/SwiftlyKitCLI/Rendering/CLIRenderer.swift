@@ -1,32 +1,8 @@
-import Darwin
 import Foundation
 import SwiftlyKit
 
-/// Serialized stdout and stderr boundary used by the command runtime.
-public protocol CLIOutputWriting: Sendable {
-
-    /// Whether standard error is connected to an interactive terminal.
-    var standardErrorIsTTY: Bool { get }
-
-    /// Writes one complete value to standard output.
-    func writeStandardOutput(_ value: String)
-
-    /// Writes one complete value to standard error.
-    func writeStandardError(_ value: String)
-
-}
-
-extension CLIOutputWriting {
-
-    /// Defaults injected output to deterministic noninteractive rendering.
-    public var standardErrorIsTTY: Bool { false }
-
-}
-
 /// Converts modeled results and failures to the CLI channel contract.
 struct CLIRenderer: Sendable {
-
-    let encode: @Sendable (CLIJSONEnvelope) throws -> Data
 
     /// Renders one successful or preparation-required result and returns its status.
     func render(result: CLIResult, command: String, json: Bool, output: any CLIOutputWriting) -> Int32 {
@@ -40,7 +16,8 @@ struct CLIRenderer: Sendable {
             guard writeJSON(
                 CLIJSONEnvelope(command: command, outcome: "success", result: payload),
                 output: output
-            ) else { return 1 }
+            )
+            else { return 1 }
             return 0
         }
 
@@ -64,7 +41,8 @@ struct CLIRenderer: Sendable {
             guard writeJSON(
                 CLIJSONEnvelope(command: command, outcome: "failure", error: errorValue),
                 output: output
-            ) else { return 1 }
+            )
+            else { return 1 }
         } else {
             output.writeStandardError("error: \(message)\ndetail: \(detail)\n\n")
         }
@@ -83,7 +61,8 @@ struct CLIRenderer: Sendable {
             guard writeJSON(
                 CLIJSONEnvelope(command: command, outcome: "failure", error: value),
                 output: output
-            ) else { return 1 }
+            )
+            else { return 1 }
         } else {
             output.writeStandardError("error: The command is invalid.\ndetail: \(detail)\n\n")
         }
@@ -115,7 +94,8 @@ struct CLIRenderer: Sendable {
             guard writeJSON(
                 CLIJSONEnvelope(command: command, outcome: "preparationRequired", preparation: preparation),
                 output: output
-            ) else { return 1 }
+            )
+            else { return 1 }
         } else {
             output.writeStandardError(
                 "action required: the selected environment is not installed.\n"
@@ -154,7 +134,9 @@ extension CLIRenderer {
     private func writeJSON(_ envelope: CLIJSONEnvelope, output: any CLIOutputWriting) -> Bool {
 
         do {
-            let data = try encode(envelope)
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = [.sortedKeys]
+            let data = try encoder.encode(envelope)
             output.writeStandardOutput(String(decoding: data, as: UTF8.self) + "\n")
             return true
         } catch {
@@ -222,7 +204,7 @@ extension CLIRenderer {
                 "identifier": .string(summary.staticLinuxSDKIdentifier),
                 "version": .string(summary.staticLinuxSDKVersion)
             ]),
-            "verification": .string(summary.verification)
+            "verification": .string("verified")
         ])
     }
 
@@ -293,14 +275,13 @@ extension CLIRenderer {
             + "Configuration: \(configurationName(summary.configuration))\n"
             + "Swift: \(summary.swiftVersion.description)\n"
             + "Static Linux SDK: \(summary.staticLinuxSDKIdentifier)\n"
-            + "Verification: \(summary.verification)\n"
+            + "Verification: verified\n"
     }
 
     private func shellQuote(_ value: String) -> String {
 
-        guard value.range(of: #"^[A-Za-z0-9_./:=+-]+$"#, options: .regularExpression) != nil else {
-            return "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
-        }
+        guard value.range(of: #"^[A-Za-z0-9_./:=+-]+$"#, options: .regularExpression) != nil
+        else { return "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'" }
         return value
     }
 
@@ -422,103 +403,4 @@ private func configurationName(_ configuration: BuildConfiguration) -> String {
         case .release: "release"
         case .debug: "debug"
     }
-}
-
-/// FileHandle-backed process output for the standalone executable.
-public final class FileHandleCLIOutput: CLIOutputWriting, @unchecked Sendable {
-
-    private let standardOutput: FileHandle
-    private let standardError: FileHandle
-    private let lock = NSLock()
-
-    /// Creates an output adapter for the supplied process channels.
-    public init(standardOutput: FileHandle = .standardOutput, standardError: FileHandle = .standardError) {
-        self.standardOutput = standardOutput
-        self.standardError = standardError
-    }
-
-    /// Whether the process standard-error descriptor is an interactive terminal.
-    public var standardErrorIsTTY: Bool { isatty(STDERR_FILENO) == 1 }
-
-    /// Writes one UTF-8 value to standard output.
-    public func writeStandardOutput(_ value: String) {
-        lock.withLock { try? standardOutput.write(contentsOf: Data(value.utf8)) }
-    }
-
-    /// Writes one UTF-8 value to standard error.
-    public func writeStandardError(_ value: String) {
-        lock.withLock { try? standardError.write(contentsOf: Data(value.utf8)) }
-    }
-
-}
-
-/// A small JSON value tree used for compact stable command results.
-enum CLIJSONValue: Encodable, Sendable {
-
-    case string(String)
-    case boolean(Bool)
-    case array([CLIJSONValue])
-    case object([String: CLIJSONValue])
-
-    /// Encodes the modeled value through its matching JSON container.
-    func encode(to encoder: Encoder) throws {
-
-        var container = encoder.singleValueContainer()
-        switch self {
-            case .string(let value): try container.encode(value)
-            case .boolean(let value): try container.encode(value)
-            case .array(let value): try container.encode(value)
-            case .object(let value): try container.encode(value)
-        }
-    }
-
-}
-
-/// Machine-readable command result envelope.
-struct CLIJSONEnvelope: Encodable {
-
-    let schemaVersion = 1
-    let command: String
-    let outcome: String
-    let result: CLIJSONValue?
-    let preparation: CLIJSONValue?
-    let error: CLIJSONValue?
-
-    init(
-        command: String,
-        outcome: String,
-        result: CLIJSONValue? = nil,
-        preparation: CLIJSONValue? = nil,
-        error: CLIJSONValue? = nil
-    ) {
-
-        self.command = command
-        self.outcome = outcome
-        self.result = result
-        self.preparation = preparation
-        self.error = error
-    }
-
-    /// Encodes the envelope while omitting absent result sections.
-    func encode(to encoder: Encoder) throws {
-
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(schemaVersion, forKey: .schemaVersion)
-        try container.encode(command, forKey: .command)
-        try container.encode(outcome, forKey: .outcome)
-        try container.encodeIfPresent(result, forKey: .result)
-        try container.encodeIfPresent(preparation, forKey: .preparation)
-        try container.encodeIfPresent(error, forKey: .error)
-    }
-
-    /// Keys emitted in the stable command result envelope.
-    enum CodingKeys: String, CodingKey {
-        case schemaVersion
-        case command
-        case outcome
-        case result
-        case preparation
-        case error
-    }
-
 }

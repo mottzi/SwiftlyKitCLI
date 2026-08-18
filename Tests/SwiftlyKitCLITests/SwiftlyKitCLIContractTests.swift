@@ -85,28 +85,3 @@ struct SwiftlyKitCLIContractTests {
     }
 
 }
-
-/// Lock-protected capture of the runtime's standard output and error channels.
-private final class RecordingCLIOutput: CLIOutputWriting, @unchecked Sendable {
-
-    private let lock = NSLock()
-    private var recordedStandardOutput = ""
-    private var recordedStandardError = ""
-
-    var standardOutput: String {
-        lock.withLock { recordedStandardOutput }
-    }
-
-    var standardError: String {
-        lock.withLock { recordedStandardError }
-    }
-
-    func writeStandardOutput(_ value: String) {
-        lock.withLock { recordedStandardOutput += value }
-    }
-
-    func writeStandardError(_ value: String) {
-        lock.withLock { recordedStandardError += value }
-    }
-
-}

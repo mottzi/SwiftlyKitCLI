@@ -1,36 +1,16 @@
 # SwiftlyKitCLI
 
-`swiftlykit` is the command-line interface for
-[SwiftlyKit](https://github.com/mottzi/SwiftlyKit).
+`swiftlykit` is a CLI that cross-compiles SwiftPM projects from macOS to
+statically linked ARM64 or x86-64 Linux Musl executables. It manages the
+required Swift toolchain and Static Linux SDK and verifies the resulting
+static executable.
 
-Give it the root of a trusted local Swift package. It prepares an official
-Swift toolchain and matching Static Linux SDK, builds one executable product,
-and verifies the result as a static Linux executable.
-
-`swiftlykit` can:
-
-- build for ARM64 or x86-64 Linux Musl on an Apple silicon Mac;
-- install Swiftly, the selected toolchain, and its matching SDK when you permit
-  the installation;
-- publish the executable and its resource bundles as one runnable directory;
-- show each stage of the SwiftlyKit workflow; and
-- clean build storage or remove exact Swiftly-managed resources.
-
-SwiftlyKit owns the build and environment operations. For details about that
-workflow, see the [SwiftlyKit repository](https://github.com/mottzi/SwiftlyKit).
+This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift library.
 
 ## Requirements
 
-- Apple silicon Mac
-- macOS 13 or later
-- Swift 6.3 or later
-- An active macOS SDK from Xcode or Command Line Tools
-- An unsandboxed terminal
-- A trusted local Swift package to build
-
-Swiftly 1.0 or later is also required. `swiftlykit` can install Swiftly when
-you use `--install-environment`. It does not install Xcode or select the active
-developer directory.
+- Apple silicon Mac running macOS 13 or later
+- Xcode or Command Line Tools with Swift 6.3 or later
 
 ## Installation
 
@@ -55,8 +35,19 @@ Add that directory to `PATH` for the current shell:
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-To make the change permanent in zsh, add the same line to `~/.zprofile`, and
-then start a new terminal. Confirm the installation:
+Make the change permanent for zsh:
+
+```sh
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
+```
+
+Or for Bash:
+
+```sh
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bash_profile"
+```
+
+Then start a new terminal and confirm the installation:
 
 ```sh
 swiftlykit --version
@@ -64,11 +55,11 @@ swiftlykit --version
 
 ## Quick start
 
-Build the only executable product in the current package for ARM64 Linux:
+Build the only executable product in the current package for x86-64 Linux:
 
 ```sh
 swiftlykit build . \
-  --architecture aarch64 \
+  --architecture x86_64 \
   --install-environment \
   --resolve-dependencies
 ```
@@ -77,7 +68,8 @@ This command permits `swiftlykit` to install missing environment components.
 If the build needs dependency resolution, it also permits `swiftlykit` to
 resolve dependencies and retry the build.
 
-Select a product and publish one runnable directory:
+Select a product and publish its executable and resource bundles to an output
+directory:
 
 ```sh
 swiftlykit build /path/to/MyPackage \
@@ -88,9 +80,9 @@ swiftlykit build /path/to/MyPackage \
   --resolve-dependencies
 ```
 
-The published directory contains the verified executable and its required
-resource bundles. Keep the complete directory together. An existing output
-directory is not replaced unless you add `--replace-output`.
+The output directory contains the verified executable and any required resource
+bundles. Keep its contents together. An existing output directory is not
+replaced unless you add `--replace-output`.
 
 ## Commands
 

@@ -5,7 +5,7 @@ import SwiftlyKitCLI
 /// Process entry point for the standalone swiftlykit executable.
 enum SwiftlyKitCLIEntryPoint {
 
-    /// Runs one invocation against the live SwiftlyKit adapter.
+    /// Runs one invocation against live SwiftlyKit services.
     static func main() async {
         let runtime = SwiftlyKitCLIRuntime()
         let status = await runtime.run(
