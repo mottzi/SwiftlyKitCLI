@@ -11,8 +11,6 @@ struct CleanCommand: SwiftlyKitCLICommand {
     @OptionGroup var scratch: CLIScratchOptions
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -30,6 +28,8 @@ struct CleanCommand: SwiftlyKitCLICommand {
             return .cleaned
         }
     }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
 
     static let configuration = CommandConfiguration(
         commandName: "clean",

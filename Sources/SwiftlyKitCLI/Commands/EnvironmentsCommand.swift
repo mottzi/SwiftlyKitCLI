@@ -10,8 +10,6 @@ struct EnvironmentsCommand: SwiftlyKitCLICommand {
     @OptionGroup var selection: CLIEnvironmentSelectionOptions
     @OptionGroup var output: CLIOutputOptions
 
-    var cliOutput: CLIOutputMode { CLIOutputMode(json: output.json) }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -24,6 +22,8 @@ struct EnvironmentsCommand: SwiftlyKitCLICommand {
         )
         return .environments(choices.map(CLIEnvironmentSummary.init))
     }
+
+    var cliOutput: CLIOutputMode { CLIOutputMode(json: output.json) }
 
     static let configuration = CommandConfiguration(
         commandName: "environments",

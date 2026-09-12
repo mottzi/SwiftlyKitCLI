@@ -11,8 +11,6 @@ struct ResolveCommand: SwiftlyKitCLICommand {
     @OptionGroup var scratch: CLIScratchOptions
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -30,6 +28,8 @@ struct ResolveCommand: SwiftlyKitCLICommand {
             return .resolved
         }
     }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
 
     static let configuration = CommandConfiguration(
         commandName: "resolve",

@@ -1,23 +1,23 @@
 import Darwin
 import Foundation
 
-/// Serialized stdout and stderr boundary used by the command runtime.
+/// Standard-output and standard-error interface for command execution.
 public protocol CLIOutputWriting: Sendable {
 
     /// Whether standard error is connected to an interactive terminal.
     var standardErrorIsTTY: Bool { get }
 
-    /// Writes one complete value to standard output.
+    /// Writes text to standard output.
     func writeStandardOutput(_ value: String)
 
-    /// Writes one complete value to standard error.
+    /// Writes text to standard error.
     func writeStandardError(_ value: String)
 
 }
 
 extension CLIOutputWriting {
 
-    /// Defaults injected output to deterministic noninteractive rendering.
+    /// Reports standard error as noninteractive by default.
     public var standardErrorIsTTY: Bool { false }
 
 }
@@ -38,12 +38,12 @@ public final class FileHandleCLIOutput: CLIOutputWriting, @unchecked Sendable {
     /// Whether the process standard-error descriptor is an interactive terminal.
     public var standardErrorIsTTY: Bool { isatty(STDERR_FILENO) == 1 }
 
-    /// Writes one UTF-8 value to standard output.
+    /// Writes UTF-8 text to standard output.
     public func writeStandardOutput(_ value: String) {
         lock.withLock { try? standardOutput.write(contentsOf: Data(value.utf8)) }
     }
 
-    /// Writes one UTF-8 value to standard error.
+    /// Writes UTF-8 text to standard error.
     public func writeStandardError(_ value: String) {
         lock.withLock { try? standardError.write(contentsOf: Data(value.utf8)) }
     }

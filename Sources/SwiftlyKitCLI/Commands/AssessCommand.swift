@@ -10,8 +10,6 @@ struct AssessCommand: SwiftlyKitCLICommand {
     @OptionGroup var selection: CLIExactEnvironmentOptions
     @OptionGroup var output: CLIOutputOptions
 
-    var cliOutput: CLIOutputMode { CLIOutputMode(json: output.json) }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -25,6 +23,8 @@ struct AssessCommand: SwiftlyKitCLICommand {
         )
         return .assessment(CLIEnvironmentSummary(assessment))
     }
+
+    var cliOutput: CLIOutputMode { CLIOutputMode(json: output.json) }
 
     static let configuration = CommandConfiguration(
         commandName: "assess",

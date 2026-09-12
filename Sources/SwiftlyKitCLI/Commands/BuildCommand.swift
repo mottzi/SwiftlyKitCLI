@@ -40,21 +40,6 @@ struct BuildCommand: SwiftlyKitCLICommand {
 
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
-    mutating func validate() throws {
-
-        if let jobs, jobs <= 0 {
-            throw ValidationError("--jobs must be greater than zero.")
-        }
-        guard !replaceOutput || outputPath != nil else {
-            throw ValidationError("--replace-output requires --output-path.")
-        }
-        guard outputPath != nil || cleanup == nil else {
-            throw ValidationError("--cleanup requires --output-path.")
-        }
-    }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -108,6 +93,21 @@ struct BuildCommand: SwiftlyKitCLICommand {
                     staticLinuxSDKVersion: environment.staticLinuxSDK.version
                 )
             )
+        }
+    }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
+
+    mutating func validate() throws {
+
+        if let jobs, jobs <= 0 {
+            throw ValidationError("--jobs must be greater than zero.")
+        }
+        guard !replaceOutput || outputPath != nil else {
+            throw ValidationError("--replace-output requires --output-path.")
+        }
+        guard outputPath != nil || cleanup == nil else {
+            throw ValidationError("--cleanup requires --output-path.")
         }
     }
 

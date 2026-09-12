@@ -46,6 +46,7 @@ func withPreparedEnvironment(
 
 extension CLIPreparationOptions {
 
+    /// Converts the process-variable options to a validated SwiftPM environment.
     func swiftPMEnvironment(in context: CLICommandContext) throws -> SwiftPMEnvironment {
 
         let allNames = environmentNames + sensitiveEnvironmentNames + unsetEnvironmentNames
@@ -73,6 +74,7 @@ extension CLIPreparationOptions {
         return try SwiftPMEnvironment(values)
     }
 
+    /// Converts the trait options to a validated SwiftPM configuration.
     var swiftPMTraits: SwiftPMTraits {
         get throws {
             if noTraits { return .none }
@@ -82,6 +84,7 @@ extension CLIPreparationOptions {
         }
     }
 
+    /// Resolves the SwiftPM shared-storage paths against the command context.
     func swiftPMSharedStorage(in context: CLICommandContext) -> SwiftPMSharedStorage {
 
         SwiftPMSharedStorage(

@@ -1,6 +1,6 @@
 import Foundation
 
-/// A small JSON value tree used for compact stable command results.
+/// JSON value tree for stable command results.
 enum CLIJSONValue: Encodable, Sendable {
 
     case string(String)
@@ -8,7 +8,7 @@ enum CLIJSONValue: Encodable, Sendable {
     case array([CLIJSONValue])
     case object([String: CLIJSONValue])
 
-    /// Encodes the modeled value through its matching JSON container.
+    /// Encodes the stored case as its JSON value.
     func encode(to encoder: Encoder) throws {
 
         var container = encoder.singleValueContainer()

@@ -29,7 +29,7 @@ struct CLICommandContext: Sendable {
         )
     }
 
-    /// Resolves a path relative to the invocation's captured current directory.
+    /// Resolves an absolute or current-directory-relative path and standardizes it.
     func canonicalURL(_ path: String) -> URL {
         let url = path.hasPrefix("/") ? URL(filePath: path) : currentDirectory.appending(path: path)
         return url.resolvingSymlinksInPath().standardizedFileURL
@@ -82,10 +82,13 @@ struct CLICommandContext: Sendable {
 
 }
 
-/// The one internal seam between ArgumentParser commands and process execution.
+/// Internal command interface between ArgumentParser and process execution.
 protocol SwiftlyKitCLICommand: AsyncParsableCommand, Sendable {
 
+    /// The command name included in JSON output.
     var cliCommandName: String { get }
+
+    /// The selected JSON and verbose output controls.
     var cliOutput: CLIOutputMode { get }
 
     /// Performs this command's SwiftlyKit operation and returns its terminal result.
@@ -95,17 +98,17 @@ protocol SwiftlyKitCLICommand: AsyncParsableCommand, Sendable {
 
 extension SwiftlyKitCLICommand {
 
-    var cliCommandName: String {
-        Self._commandName
-    }
-
-    /// Keeps direct ArgumentParser execution truthful while reusing process handling.
+    /// Runs the command with live process context and throws a nonzero exit status.
     mutating func run() async throws {
         let status = await CLICommandRunner.run(
             self,
             in: .live(output: FileHandleCLIOutput())
         )
         guard status == 0 else { throw ExitCode(status) }
+    }
+
+    var cliCommandName: String {
+        Self._commandName
     }
 
 }

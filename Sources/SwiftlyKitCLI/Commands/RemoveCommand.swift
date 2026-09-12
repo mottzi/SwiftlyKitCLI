@@ -18,15 +18,6 @@ struct RemoveCommand: SwiftlyKitCLICommand {
 
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
-    mutating func validate() throws {
-
-        guard removalPlanPath == nil
-            || (swiftVersion == nil && sdkIdentifier == nil && environmentStoragePath == nil)
-        else { throw ValidationError("A removal-plan path cannot be combined with manual removal options.") }
-    }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         guard removalPlanPath != nil || swiftVersion != nil || sdkIdentifier != nil
@@ -34,6 +25,15 @@ struct RemoveCommand: SwiftlyKitCLICommand {
         let plan = try removalPlan(for: self, in: context)
         try await SwiftlyKit.remove(plan, onEvent: context.onEvent)
         return .removed
+    }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
+
+    mutating func validate() throws {
+
+        guard removalPlanPath == nil
+            || (swiftVersion == nil && sdkIdentifier == nil && environmentStoragePath == nil)
+        else { throw ValidationError("A removal-plan path cannot be combined with manual removal options.") }
     }
 
     static let configuration = CommandConfiguration(

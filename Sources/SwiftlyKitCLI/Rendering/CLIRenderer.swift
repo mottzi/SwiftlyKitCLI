@@ -1,7 +1,7 @@
 import Foundation
 import SwiftlyKit
 
-/// Converts modeled results and failures to the CLI channel contract.
+/// Renders command results, events, and errors to the CLI output channels.
 struct CLIRenderer: Sendable {
 
     /// Renders one successful or preparation-required result and returns its status.
@@ -49,7 +49,7 @@ struct CLIRenderer: Sendable {
         return status
     }
 
-    /// Renders a syntax or request error without opening SwiftlyKit.
+    /// Renders an invalid command or request to the selected output format.
     func renderUsage(detail: String, command: String, json: Bool, output: any CLIOutputWriting) -> Int32 {
 
         if json {
@@ -108,7 +108,8 @@ struct CLIRenderer: Sendable {
         return 3
     }
 
-    /// Writes one progress, command, or raw output event to human standard error.
+    /// Writes progress events to standard error if JSON is off.
+    /// Writes command and output events if JSON is off and verbose is on.
     func render(event: SwiftlyKitEvent, verbose: Bool, json: Bool, output: any CLIOutputWriting) {
 
         guard !json else { return }

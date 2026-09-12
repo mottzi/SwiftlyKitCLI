@@ -10,8 +10,6 @@ struct ProductsCommand: SwiftlyKitCLICommand {
     @OptionGroup var preparation: CLIPreparationOptions
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -25,6 +23,8 @@ struct ProductsCommand: SwiftlyKitCLICommand {
             return .products(products.map(\.name))
         }
     }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
 
     static let configuration = CommandConfiguration(
         commandName: "products",

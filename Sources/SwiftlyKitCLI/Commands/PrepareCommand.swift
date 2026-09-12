@@ -10,8 +10,6 @@ struct PrepareCommand: SwiftlyKitCLICommand {
     @OptionGroup var preparation: CLIPreparationOptions
     @OptionGroup var output: CLIVerboseOutputOptions
 
-    var cliOutput: CLIOutputMode { output.cliOutput }
-
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -24,6 +22,8 @@ struct PrepareCommand: SwiftlyKitCLICommand {
             .prepared(CLIPreparedSummary(environment))
         }
     }
+
+    var cliOutput: CLIOutputMode { output.cliOutput }
 
     static let configuration = CommandConfiguration(
         commandName: "prepare",

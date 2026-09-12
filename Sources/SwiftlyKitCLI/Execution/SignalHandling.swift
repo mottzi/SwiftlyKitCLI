@@ -71,7 +71,7 @@ final class CLISignalSources: @unchecked Sendable {
         for source in sources { source.activate() }
     }
 
-    /// Releases all signal sources.
+    /// Cancels all signal sources.
     func cancel() {
         for source in sources { source.cancel() }
     }

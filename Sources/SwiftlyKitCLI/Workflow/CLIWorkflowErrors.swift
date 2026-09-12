@@ -6,6 +6,7 @@ enum CLIWorkflowError: Error, LocalizedError, Sendable {
     case removalPlanParentMissing(URL)
     case removalPlanWriteFailed(URL)
 
+    /// Returns the user-facing message for this workflow failure.
     var errorDescription: String? {
         switch self {
             case .removalPlanParentMissing(let url):
@@ -27,6 +28,7 @@ enum CLIInputError: Error, LocalizedError, Sendable {
     case invalidRemovalPlan(URL)
     case emptyRemovalSpecification
 
+    /// Returns the user-facing message for invalid command input.
     var errorDescription: String? {
         switch self {
             case .duplicateEnvironment(let name):
