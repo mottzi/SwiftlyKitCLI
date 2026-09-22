@@ -40,6 +40,7 @@ struct BuildCommand: SwiftlyKitCLICommand {
 
     @OptionGroup var output: CLIVerboseOutputOptions
 
+    /// Prepares and builds the selected product, resolving missing dependencies only if requested.
     func execute(in context: CLICommandContext) async throws -> CLIResult {
 
         let packageRoot = try context.packageRoot(packagePath)
@@ -111,6 +112,10 @@ struct BuildCommand: SwiftlyKitCLICommand {
         }
     }
 
+}
+
+extension BuildCommand {
+
     private func buildOutput(in context: CLICommandContext) -> BuildOutput {
 
         guard let outputPath else { return .buildStorage }
@@ -120,6 +125,10 @@ struct BuildCommand: SwiftlyKitCLICommand {
             cleanup: cleanup?.value ?? .retain
         )
     }
+
+}
+
+extension BuildCommand {
 
     static let configuration = CommandConfiguration(
         commandName: "build",

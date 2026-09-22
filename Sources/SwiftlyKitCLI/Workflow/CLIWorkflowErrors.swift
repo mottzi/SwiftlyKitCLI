@@ -31,17 +31,10 @@ enum CLIInputError: Error, LocalizedError, Sendable {
     /// Returns the user-facing message for invalid command input.
     var errorDescription: String? {
         switch self {
-            case .duplicateEnvironment(let name):
-                "The environment variable ‘\(name)’ was requested more than once."
-
-            case .missingEnvironmentValue(let name):
-                "The environment variable ‘\(name)’ is not present in this process."
-
-            case .invalidRemovalPlan(let url):
-                "The removal plan is invalid: \(url.path(percentEncoded: false))."
-
-            case .emptyRemovalSpecification:
-                "Provide a removal-plan path, --swift-version, or --sdk-identifier."
+            case .duplicateEnvironment(let name): "The environment variable ‘\(name)’ was requested more than once."
+            case .missingEnvironmentValue(let name): "The environment variable ‘\(name)’ is not present in this process."
+            case .invalidRemovalPlan(let url): "The removal plan is invalid: \(url.path(percentEncoded: false))."
+            case .emptyRemovalSpecification: "Provide a removal-plan path, --swift-version, or --sdk-identifier."
         }
     }
 

@@ -69,6 +69,10 @@ struct CLICommandContext: Sendable {
         return root
     }
 
+}
+
+extension CLICommandContext {
+
     /// Creates context for a live process invocation.
     static func live(output: any CLIOutputWriting) -> CLICommandContext {
 

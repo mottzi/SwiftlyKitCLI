@@ -7,9 +7,10 @@ func removalPlan(for command: RemoveCommand, in context: CLICommandContext) thro
     if let path = command.removalPlanPath {
         let url = context.canonicalURL(path)
         do {
+            let data = try Data(contentsOf: url)
             return try JSONDecoder().decode(
                 EnvironmentRemovalPlan.self,
-                from: Data(contentsOf: url)
+                from: data
             )
         } catch {
             throw CLIInputError.invalidRemovalPlan(url)
