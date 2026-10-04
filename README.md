@@ -14,6 +14,8 @@ This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift
 
 ## Installation
 
+Current release: [SwiftlyKitCLI 0.2.0](https://github.com/mottzi/SwiftlyKitCLI/releases/tag/0.2.0).
+
 This checkout resolves SwiftlyKit from its public repository using
 `from: "0.5.1"`. The lockfile records the selected public release. A sibling
 library checkout is not required.
