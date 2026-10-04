@@ -387,6 +387,7 @@ private func componentName(_ component: PreparationComponent) -> String {
         case .swiftly: "swiftly"
         case .toolchain: "toolchain"
         case .staticLinuxSDK: "staticLinuxSDK"
+        default: String(describing: component)
     }
 }
 
