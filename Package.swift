@@ -1,15 +1,6 @@
 // swift-tools-version: 6.3
 
-import Foundation
 import PackageDescription
-
-let usesLocalSwiftlyKit = ProcessInfo.processInfo.environment["SWIFTLYKIT_USE_LOCAL_DEPENDENCY"] == "1"
-let swiftlyKitDependency: Package.Dependency = usesLocalSwiftlyKit
-    ? .package(path: "../SwiftlyKit")
-    : .package(
-        url: "https://github.com/mottzi/SwiftlyKit.git",
-        exact: "0.5.0"
-    )
 
 let package = Package(
     name: "SwiftlyKitCLI",
@@ -23,7 +14,10 @@ let package = Package(
         )
     ],
     dependencies: [
-        swiftlyKitDependency,
+        .package(
+            url: "https://github.com/mottzi/SwiftlyKit.git",
+            from: "0.5.0"
+        ),
         .package(
             url: "https://github.com/apple/swift-argument-parser.git",
             exact: "1.8.2"
