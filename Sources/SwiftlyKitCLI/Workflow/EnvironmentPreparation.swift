@@ -17,14 +17,8 @@ func withPreparedEnvironment(
     let swiftlyKit = SwiftlyKit(
         environmentStorage: try selection.environmentStorage(in: context)
     )
-    let assessment = try await swiftlyKit.assess(
-        packageRoot,
-        for: selection.target,
-        toolchain: selection.toolchain
-    )
-
-    guard !assessment.requiresInstallation || preparation.installEnvironment
-    else { return .preparationRequired(CLIEnvironmentSummary(assessment)) }
+    let choices = try await swiftlyKit.compatibleEnvironments(packageRoot, for: selection.target)
+    var assessment = try choices.select(selection.toolchain)
 
     let recordRemovalPlan: EnvironmentRemovalPlan.Recorder?
     if let path = preparation.removalPlanPath {
@@ -33,15 +27,25 @@ func withPreparedEnvironment(
         recordRemovalPlan = nil
     }
 
-    let environment = try await swiftlyKit.prepare(
-        assessment,
-        swiftPMEnvironment: swiftPMEnvironment,
-        swiftPMTraits: swiftPMTraits,
-        swiftPMSharedStorage: swiftPMSharedStorage,
-        recordRemovalPlan: recordRemovalPlan,
-        onEvent: context.onEvent
-    )
-    return try await operation(swiftlyKit, environment)
+    while true {
+        guard !assessment.requiresInstallation || preparation.installEnvironment
+        else { return .preparationRequired(CLIEnvironmentSummary(assessment)) }
+
+        let environment = try await swiftlyKit.prepare(
+            assessment,
+            swiftPMEnvironment: swiftPMEnvironment,
+            swiftPMTraits: swiftPMTraits,
+            swiftPMSharedStorage: swiftPMSharedStorage,
+            recordRemovalPlan: recordRemovalPlan,
+            onEvent: context.onEvent
+        )
+        do {
+            return try await operation(swiftlyKit, environment)
+        } catch let error as SwiftlyKitError {
+            guard let recovery = choices.recoveryAssessment(after: error, for: selection.toolchain) else { throw error }
+            assessment = recovery
+        }
+    }
 }
 
 extension CLIPreparationOptions {

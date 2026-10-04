@@ -10,7 +10,7 @@ public struct SwiftlyKitCLIRuntime: Sendable {
 
     /// Creates a runtime with the live process dependencies.
     public init(
-        version: String = "0.2.0",
+        version: String = "0.2.1",
         environment: [String: String] = ProcessInfo.processInfo.environment,
         currentDirectory: URL = URL(filePath: FileManager.default.currentDirectoryPath)
     ) {

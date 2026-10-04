@@ -338,6 +338,7 @@ extension CLIRenderer {
             case .staleAssessment: return "staleAssessment"
             case .invalidSwiftPMEnvironmentVariable: return "invalidSwiftPMEnvironmentVariable"
             case .invalidSwiftPMTrait: return "invalidSwiftPMTrait"
+            case .hostCompilationFailed: return "hostCompilationFailed"
             case .packageInspectionFailed: return "packageInspectionFailed"
             case .dependencyResolutionRequired: return "dependencyResolutionRequired"
             case .dependencyResolutionFailed: return "dependencyResolutionFailed"

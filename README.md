@@ -14,10 +14,10 @@ This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift
 
 ## Installation
 
-Current release: [SwiftlyKitCLI 0.2.0](https://github.com/mottzi/SwiftlyKitCLI/releases/tag/0.2.0).
+Current release: [SwiftlyKitCLI 0.2.1](https://github.com/mottzi/SwiftlyKitCLI/releases/tag/0.2.1).
 
 This checkout resolves SwiftlyKit from its public repository using
-`from: "0.5.1"`. The lockfile records the selected public release. A sibling
+`from: "0.6.0"`. The lockfile records the selected public release. A sibling
 library checkout is not required.
 
 Clone the repository and run the installation script:
@@ -126,6 +126,16 @@ Run help for the complete syntax:
 swiftlykit --help
 swiftlykit build --help
 ```
+
+For development against a sibling SwiftlyKit checkout, bind it before building:
+
+```sh
+swift package edit SwiftlyKit --path ../SwiftlyKit
+swift test
+```
+
+The editable dependency is local workspace state. Run `swift package unedit SwiftlyKit`
+to return to the released dependency.
 
 A package path defaults to the current directory. It must identify the exact
 package root that contains `Package.swift`.

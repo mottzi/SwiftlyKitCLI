@@ -50,8 +50,14 @@ struct BuildCommand: SwiftlyKitCLICommand {
             preparation: preparation,
             context: context
         ) { swiftlyKit, environment in
-            let products = try await swiftlyKit.executableProducts(using: environment)
-            let selectedProduct = try products.select(product)
+            let inspection = try await swiftlyKit.inspectPackage(
+                using: environment,
+                scratchStorage: scratch.storage(in: context),
+                dependencies: resolveDependencies ? .resolveIfNeeded : .requireResolved,
+                onEvent: context.onEvent
+            )
+            let environment = inspection.environment
+            let selectedProduct = try inspection.products.select(product)
             let buildRequest = BuildRequest(
                 selectedProduct,
                 configuration: configuration?.value ?? .release,

@@ -1,5 +1,5 @@
 {
-  "originHash" : "155b76f1bf36f69d25278442c13eeba072dad5a795424d698da08c664f560eaf",
+  "originHash" : "d074697a3cb175836eb127430e922852af864669852f538f65b645bca975d444",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mottzi/SwiftlyKit.git",
       "state" : {
-        "revision" : "d1c0e71663d32e9b2fa9d526bd13ee386271a484",
-        "version" : "0.5.1"
+        "revision" : "c2088fe21d55b307a4cff3c0b1ee5ccd37c86281",
+        "version" : "0.6.0"
       }
     }
   ],
