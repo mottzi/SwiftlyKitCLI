@@ -22,14 +22,14 @@ struct BuildCommand: SwiftlyKitCLICommand {
 
     @Option(
         name: .customLong("output-path"),
-        help: "Publish the executable and resource bundles to this directory."
+        help: "Export the executable and resource bundles to this directory."
     )
     var outputPath: String?
 
-    @Flag(name: .customLong("replace-output"), help: "Replace an existing published output directory.")
+    @Flag(name: .customLong("replace-output"), help: "Replace an existing exported output directory.")
     var replaceOutput = false
 
-    @Option(name: .customLong("cleanup"), help: "Post-publication cleanup: retain, clean, or reset.")
+    @Option(name: .customLong("cleanup"), help: "Post-export cleanup: retain, clean, or reset.")
     var cleanup: CLICleanup?
 
     @Flag(name: .customLong("strip"), help: "Strip symbols from the verified executable.")
@@ -119,7 +119,7 @@ extension BuildCommand {
     private func buildOutput(in context: CLICommandContext) -> BuildOutput {
 
         guard let outputPath else { return .buildStorage }
-        return .publish(
+        return .export(
             to: context.canonicalURL(outputPath),
             replacingExisting: replaceOutput,
             cleanup: cleanup?.value ?? .retain

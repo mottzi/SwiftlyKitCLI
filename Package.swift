@@ -8,7 +8,7 @@ let swiftlyKitDependency: Package.Dependency = usesLocalSwiftlyKit
     ? .package(path: "../SwiftlyKit")
     : .package(
         url: "https://github.com/mottzi/SwiftlyKit.git",
-        exact: "0.3.1"
+        exact: "0.5.0"
     )
 
 let package = Package(

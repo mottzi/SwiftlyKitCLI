@@ -14,6 +14,11 @@ This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift
 
 ## Installation
 
+This checkout requires the upcoming SwiftlyKit `0.5.0` release. Until its tag is
+available, place the SwiftlyKit checkout beside this repository and use
+`SWIFTLYKIT_USE_LOCAL_DEPENDENCY=1 swift build -c release` for local verification.
+Resolve dependencies again after `0.5.0` is published before distributing the CLI.
+
 Clone the repository and run the installation script:
 
 ```sh
@@ -82,7 +87,7 @@ This command permits `swiftlykit` to install missing environment components.
 If the build needs dependency resolution, it also permits `swiftlykit` to
 resolve dependencies and retry the build.
 
-Select a product and publish its executable and resource bundles to an output
+Select a product and export its executable and resource bundles to an output
 directory:
 
 ```sh
@@ -143,6 +148,6 @@ Add `--json` to write one JSON result for automation. Do not use `--json` and
 | `3` | Environment preparation requires permission |
 | `4` | Environment, dependency, cleanup, or removal failure |
 | `5` | Build or source-stability failure |
-| `6` | Verification, stripping, publication, or completion failure |
+| `6` | Verification, stripping, export, or completion failure |
 | `7` | Another process owns the required mutation |
 | `130` | Cancellation |

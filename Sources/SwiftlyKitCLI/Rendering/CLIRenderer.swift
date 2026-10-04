@@ -306,7 +306,7 @@ extension CLIRenderer {
                 return 5
 
             case .runtimeResourceVerificationFailed, .stripFailed, .executableVerificationFailed, .outputInsideBuildStorage,
-                 .outputAlreadyExists, .outputPublicationFailed, .postBuildCleanupFailed:
+                 .outputAlreadyExists, .outputExportFailed, .postBuildCleanupFailed:
                 return 6
 
             case .buildArtifactCleanupFailed, .buildStorageResetFailed,
@@ -355,7 +355,7 @@ extension CLIRenderer {
             case .unsafeEnvironmentStorage: return "unsafeEnvironmentStorage"
             case .outputInsideBuildStorage: return "outputInsideBuildStorage"
             case .outputAlreadyExists: return "outputAlreadyExists"
-            case .outputPublicationFailed: return "outputPublicationFailed"
+            case .outputExportFailed: return "outputExportFailed"
             case .postBuildCleanupFailed: return "postBuildCleanupFailed"
             case .buildArtifactCleanupFailed: return "buildArtifactCleanupFailed"
             case .buildStorageResetFailed: return "buildStorageResetFailed"

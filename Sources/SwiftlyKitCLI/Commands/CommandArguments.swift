@@ -47,7 +47,7 @@ enum CLIConfiguration: String, ExpressibleByArgument, Sendable {
 
 }
 
-/// The post-publication cleanup policy for a build output.
+/// The post-export cleanup policy for a build output.
 enum CLICleanup: String, ExpressibleByArgument, Sendable {
 
     case retain
