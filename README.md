@@ -15,9 +15,8 @@ This CLI depends on the [SwiftlyKit](https://github.com/mottzi/SwiftlyKit) Swift
 ## Installation
 
 This checkout resolves SwiftlyKit from its public repository using
-`from: "0.5.1"`. The new destination-policy interface requires that upcoming
-release. Refresh `Package.resolved` after the tag is available. A sibling library
-checkout is not required for the remote build.
+`from: "0.5.1"`. The lockfile records the selected public release. A sibling
+library checkout is not required.
 
 Clone the repository and run the installation script:
 
