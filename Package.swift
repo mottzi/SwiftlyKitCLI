@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/mottzi/SwiftlyKit.git",
-            from: "0.5.0"
+            from: "0.5.1"
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser.git",

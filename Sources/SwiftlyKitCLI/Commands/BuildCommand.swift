@@ -121,7 +121,7 @@ extension BuildCommand {
         guard let outputPath else { return .buildStorage }
         return .export(
             to: context.canonicalURL(outputPath),
-            replacingExisting: replaceOutput,
+            policy: replaceOutput ? .replaceIfPresent : .createNewDirectory,
             cleanup: cleanup?.value ?? .retain
         )
     }
