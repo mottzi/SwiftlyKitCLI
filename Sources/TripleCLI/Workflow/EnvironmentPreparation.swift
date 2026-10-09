@@ -1,0 +1,127 @@
+import Foundation
+import Triple
+
+/// Coordinates assessment, optional installation, and preparation for staged commands.
+func withPreparedEnvironment(
+    packageRoot: URL,
+    selection: CLIExactEnvironmentOptions,
+    preparation: CLIPreparationOptions,
+    context: CLICommandContext,
+    operation: (Triple, LocalBuildEnvironment) async throws -> CLIResult
+) async throws -> CLIResult {
+
+    let swiftPMEnvironment = try preparation.swiftPMEnvironment(in: context)
+    let swiftPMTraits = try preparation.swiftPMTraits
+    let swiftPMSharedStorage = preparation.swiftPMSharedStorage(in: context)
+
+    let triple = Triple(
+        environmentStorage: try selection.environmentStorage(in: context)
+    )
+    let choices = try await triple.compatibleEnvironments(packageRoot, for: selection.target)
+    var assessment = try choices.select(selection.toolchain)
+
+    let recordRemovalPlan: EnvironmentRemovalPlan.Recorder?
+    if let path = preparation.removalPlanPath {
+        recordRemovalPlan = try removalPlanRecorder(at: context.canonicalURL(path))
+    } else {
+        recordRemovalPlan = nil
+    }
+
+    while true {
+        guard !assessment.requiresInstallation || preparation.installEnvironment
+        else { return .preparationRequired(CLIEnvironmentSummary(assessment)) }
+
+        let environment = try await triple.prepare(
+            assessment,
+            swiftPMEnvironment: swiftPMEnvironment,
+            swiftPMTraits: swiftPMTraits,
+            swiftPMSharedStorage: swiftPMSharedStorage,
+            recordRemovalPlan: recordRemovalPlan,
+            onEvent: context.onEvent
+        )
+        do {
+            return try await operation(triple, environment)
+        } catch let error as TripleError {
+            guard let recovery = choices.recoveryAssessment(after: error, for: selection.toolchain) else { throw error }
+            assessment = recovery
+        }
+    }
+}
+
+extension CLIPreparationOptions {
+
+    /// Converts the process-variable options to a validated SwiftPM environment.
+    func swiftPMEnvironment(in context: CLICommandContext) throws -> SwiftPMEnvironment {
+
+        let allNames = environmentNames + sensitiveEnvironmentNames + unsetEnvironmentNames
+        var seen = Set<String>()
+        for name in allNames {
+            guard seen.insert(name).inserted else {
+                throw CLIInputError.duplicateEnvironment(name)
+            }
+        }
+
+        var values: [String: SwiftPMEnvironment.Value] = [:]
+        for name in environmentNames {
+            guard let value = context.environment[name] else {
+                throw CLIInputError.missingEnvironmentValue(name)
+            }
+            values[name] = .plain(value)
+        }
+        for name in sensitiveEnvironmentNames {
+            guard let value = context.environment[name] else {
+                throw CLIInputError.missingEnvironmentValue(name)
+            }
+            values[name] = .sensitive(value)
+        }
+        for name in unsetEnvironmentNames { values[name] = .unset }
+        return try SwiftPMEnvironment(values)
+    }
+
+    /// Converts the trait options to a validated SwiftPM configuration.
+    var swiftPMTraits: SwiftPMTraits {
+        get throws {
+            if noTraits { return .none }
+            if allTraits { return .all }
+            guard !traits.isEmpty else { return .packageDefaults }
+            return try SwiftPMTraits(traits, includingDefaults: includeDefaultTraits)
+        }
+    }
+
+    /// Resolves the SwiftPM shared-storage paths against the command context.
+    func swiftPMSharedStorage(in context: CLICommandContext) -> SwiftPMSharedStorage {
+
+        SwiftPMSharedStorage(
+            cacheDirectory: cachePath.map(context.canonicalURL),
+            configurationDirectory: swiftPMConfigurationPath.map(context.canonicalURL),
+            securityDirectory: securityPath.map(context.canonicalURL)
+        )
+    }
+
+}
+
+private func removalPlanRecorder(at path: URL) throws -> EnvironmentRemovalPlan.Recorder {
+
+    let parent = path.deletingLastPathComponent()
+    
+    var isDirectory: ObjCBool = false
+    let parentExists = FileManager.default.fileExists(
+        atPath: parent.path(percentEncoded: false),
+        isDirectory: &isDirectory
+    )
+    
+    guard parentExists,
+          isDirectory.boolValue
+    else { throw CLIWorkflowError.removalPlanParentMissing(parent) }
+
+    let recorder: EnvironmentRemovalPlan.Recorder = { plan in
+        do {
+            let data = try JSONEncoder().encode(plan)
+            try data.write(to: path, options: .atomic)
+        } catch {
+            throw CLIWorkflowError.removalPlanWriteFailed(path)
+        }
+    }
+    
+    return recorder
+}

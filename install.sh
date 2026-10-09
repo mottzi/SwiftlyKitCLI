@@ -11,7 +11,7 @@ usage() {
     cat <<EOF
 Usage: $program_name [options]
 
-Build and install swiftlykit from this repository checkout.
+Build and install triple from this repository checkout.
 
 Options:
   --install-dir DIR  Install into DIR instead of \$HOME/.local/bin.
@@ -65,8 +65,8 @@ while [ "$#" -gt 0 ]; do
 done
 
 [ -n "${HOME:-}" ] || fail "HOME is not set."
-[ "$(uname -s)" = "Darwin" ] || fail "swiftlykit requires macOS."
-[ "$(uname -m)" = "arm64" ] || fail "swiftlykit requires an Apple silicon Mac."
+[ "$(uname -s)" = "Darwin" ] || fail "triple requires macOS."
+[ "$(uname -m)" = "arm64" ] || fail "triple requires an Apple silicon Mac."
 command -v swift >/dev/null 2>&1 || fail "Swift 6.3 or later is required."
 
 script_directory=$(CDPATH= cd "$(dirname "$0")" && pwd -P)
@@ -76,25 +76,25 @@ if [ -z "$install_directory" ]; then
     install_directory=$HOME/.local/bin
 fi
 
-printf 'Building swiftlykit from %s\n' "$script_directory"
+printf 'Building triple from %s\n' "$script_directory"
 (
     cd "$script_directory"
-    swift build -c release --product swiftlykit
+    swift build -c release --product triple
 )
 
 binary_directory=$(
     cd "$script_directory"
     swift build -c release --show-bin-path
 )
-source_executable=$binary_directory/swiftlykit
-[ -x "$source_executable" ] || fail "the release build did not produce swiftlykit."
+source_executable=$binary_directory/triple
+[ -x "$source_executable" ] || fail "the release build did not produce triple."
 
 mkdir -p "$install_directory"
 install_directory=$(CDPATH= cd "$install_directory" && pwd -P)
-installed_executable=$install_directory/swiftlykit
+installed_executable=$install_directory/triple
 [ ! -d "$installed_executable" ] || fail "$installed_executable is a directory."
 
-temporary_executable=$(mktemp "$install_directory/.swiftlykit.install.XXXXXX")
+temporary_executable=$(mktemp "$install_directory/.triple.install.XXXXXX")
 trap cleanup 0 1 2 15
 
 install -m 755 "$source_executable" "$temporary_executable"
@@ -151,4 +151,4 @@ if ! printf '\n%s\n' "$path_line" >> "$startup_file"; then
 fi
 
 printf 'Added %s to PATH in %s.\n' "$install_directory" "$startup_file"
-printf 'Open a new terminal to run swiftlykit.\n'
+printf 'Open a new terminal to run triple.\n'

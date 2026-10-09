@@ -1,0 +1,33 @@
+import ArgumentParser
+import Triple
+
+/// Lists exact environments compatible with a package.
+struct EnvironmentsCommand: TripleCLICommand {
+
+    @Argument(help: "Package root containing Package.swift.")
+    var packagePath: String?
+
+    @OptionGroup var selection: CLIEnvironmentSelectionOptions
+    @OptionGroup var output: CLIOutputOptions
+
+    func execute(in context: CLICommandContext) async throws -> CLIResult {
+
+        let packageRoot = try context.packageRoot(packagePath)
+        let triple = Triple(
+            environmentStorage: try selection.environmentStorage(in: context)
+        )
+        let choices = try await triple.compatibleEnvironments(
+            packageRoot,
+            for: selection.target
+        )
+        return .environments(choices.map(CLIEnvironmentSummary.init))
+    }
+
+    var cliOutput: CLIOutputMode { CLIOutputMode(json: output.json) }
+
+    static let configuration = CommandConfiguration(
+        commandName: "environments",
+        abstract: "List compatible Swift environments."
+    )
+
+}

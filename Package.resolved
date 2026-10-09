@@ -1,5 +1,5 @@
 {
-  "originHash" : "d074697a3cb175836eb127430e922852af864669852f538f65b645bca975d444",
+  "originHash" : "656b8fb64164c2864aa4dd9f999113e130e164472d386d9f6d4ab206a026f284",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -29,12 +29,11 @@
       }
     },
     {
-      "identity" : "swiftlykit",
+      "identity" : "triple",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/mottzi/SwiftlyKit.git",
+      "location" : "https://github.com/mottzi/Triple.git",
       "state" : {
-        "revision" : "c2088fe21d55b307a4cff3c0b1ee5ccd37c86281",
-        "version" : "0.6.0"
+        "revision" : "99c216dda112be33f7359d3fd5bf8d0334f20498"
       }
     }
   ],

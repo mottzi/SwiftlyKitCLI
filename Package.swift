@@ -3,20 +3,20 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftlyKitCLI",
+    name: "TripleCLI",
     platforms: [
         .macOS(.v13)
     ],
     products: [
         .executable(
-            name: "swiftlykit",
-            targets: ["SwiftlyKitCLIExecutable"]
+            name: "triple",
+            targets: ["TripleCLIExecutable"]
         )
     ],
     dependencies: [
         .package(
-            url: "https://github.com/mottzi/SwiftlyKit.git",
-            from: "0.6.0"
+            url: "https://github.com/mottzi/Triple.git",
+            revision: "99c216dda112be33f7359d3fd5bf8d0334f20498"
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser.git",
@@ -25,19 +25,19 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "SwiftlyKitCLI",
+            name: "TripleCLI",
             dependencies: [
-                .product(name: "SwiftlyKit", package: "SwiftlyKit"),
+                .product(name: "Triple", package: "Triple"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
         .executableTarget(
-            name: "SwiftlyKitCLIExecutable",
-            dependencies: ["SwiftlyKitCLI"]
+            name: "TripleCLIExecutable",
+            dependencies: ["TripleCLI"]
         ),
         .testTarget(
-            name: "SwiftlyKitCLITests",
-            dependencies: ["SwiftlyKitCLI"]
+            name: "TripleCLITests",
+            dependencies: ["TripleCLI"]
         )
     ],
     swiftLanguageModes: [.v6]
