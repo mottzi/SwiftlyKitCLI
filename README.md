@@ -14,10 +14,13 @@ This CLI depends on the [Triple](https://github.com/mottzi/Triple) Swift library
 
 ## Installation
 
-This is the unpublished Triple rebrand of CLI source version `0.2.1`.
-The package pins the matching Triple library revision. The Triple and
-TripleCLI repositories must be published together before the public clone
-and installation commands below work.
+TripleCLI source version `0.2.1` is available on `main`. The package pins the
+matching Triple library revision from its public repository. A sibling library
+checkout is not required.
+
+The existing [`0.2.1` release tag](https://github.com/mottzi/TripleCLI/releases/tag/0.2.1)
+predates the rebrand and uses the SwiftlyKitCLI module and `swiftlykit`
+executable names. Clone the current `main` branch below to install `triple`.
 
 Clone the repository and run the installation script:
 
@@ -136,9 +139,9 @@ The library module, facade, error, and event types are `Triple`, `TripleError`,
 and `TripleEvent`. Swiftly remains the external tool used to manage Swift
 installations, so its names and storage options retain that spelling.
 
-Existing local checkout folders can keep their old names. Before the renamed
-remote repositories and pinned library commit are published, use a local
-SwiftPM mirror to build against the sibling `SwiftlyKit` checkout:
+Existing local checkout folders can keep their old names. Normal builds resolve
+the pinned Triple revision from GitHub. For optional local development against
+a sibling checkout still named `SwiftlyKit`, configure a local SwiftPM mirror:
 
 ```sh
 mkdir -p .swiftpm
@@ -152,15 +155,14 @@ swift build -c release --product triple
 
 The ignored symlink gives the mirror the canonical package identity `triple`,
 so local builds preserve the committed lockfile. The sibling library must contain
-the pinned rebrand commit. After publication, remove the mirror to resolve the
-public repository:
+the pinned rebrand commit. Remove the mirror to return to the public dependency:
 
 ```sh
 swift package config unset-mirror --original https://github.com/mottzi/Triple.git
 rm .swiftpm/Triple
 ```
 
-For development after publication, use an editable library checkout:
+For development against a sibling checkout named `Triple`, use an editable dependency:
 
 ```sh
 swift package edit Triple --path ../Triple
