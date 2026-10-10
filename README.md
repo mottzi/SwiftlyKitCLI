@@ -139,8 +139,9 @@ The library module, facade, error, and event types are `Triple`, `TripleError`,
 and `TripleEvent`. Swiftly remains the external tool used to manage Swift
 installations, so its names and storage options retain that spelling.
 
-The local checkout folders are `TripleCLI` and `Triple`. Normal builds resolve
-the pinned library revision from GitHub.
+The local checkout folders are `TripleCLI` and `Triple`, both inside
+`/Users/berken/Development/Swift/Triple`. Normal builds resolve the pinned library
+revision from GitHub.
 
 For development against a sibling checkout named `Triple`, use an editable dependency:
 
