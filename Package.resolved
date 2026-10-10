@@ -1,5 +1,5 @@
 {
-  "originHash" : "656b8fb64164c2864aa4dd9f999113e130e164472d386d9f6d4ab206a026f284",
+  "originHash" : "7b12bd5dfd8e5b9b7d951432c23bc8d93795fa51a1a381d5f1d124bd69676eb8",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -33,7 +33,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mottzi/Triple.git",
       "state" : {
-        "revision" : "99c216dda112be33f7359d3fd5bf8d0334f20498"
+        "revision" : "513be38e4dcb137c7cd19cb76a101d387fd12c4c"
       }
     }
   ],

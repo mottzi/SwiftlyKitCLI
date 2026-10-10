@@ -16,7 +16,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/mottzi/Triple.git",
-            revision: "99c216dda112be33f7359d3fd5bf8d0334f20498"
+            revision: "513be38e4dcb137c7cd19cb76a101d387fd12c4c"
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser.git",

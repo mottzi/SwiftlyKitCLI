@@ -10,7 +10,7 @@ public struct TripleCLIRuntime: Sendable {
 
     /// Creates a runtime with the live process dependencies.
     public init(
-        version: String = "0.2.1",
+        version: String = "0.3.0",
         environment: [String: String] = ProcessInfo.processInfo.environment,
         currentDirectory: URL = URL(filePath: FileManager.default.currentDirectoryPath)
     ) {
