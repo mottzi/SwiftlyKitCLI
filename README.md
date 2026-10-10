@@ -1,31 +1,15 @@
 # TripleCLI
 
-`triple` is a CLI that cross-compiles SwiftPM projects from macOS to
-statically linked ARM64 or x86-64 Linux Musl executables. It manages the
-required Swift toolchain and Static Linux SDK and verifies the resulting
-static executable.
+Build static Linux executables from Swift packages on your Mac.
 
-This CLI depends on the [Triple](https://github.com/mottzi/Triple) Swift library.
+The `triple` command selects a Swift toolchain and Static Linux SDK, builds your
+package, and verifies the executable. It supports ARM64 and x86-64 Linux with
+Musl. It uses the [Triple](https://github.com/mottzi/Triple) library.
 
-## Requirements
+## Install
 
-- Apple silicon Mac running macOS 13 or later
-- Xcode or Command Line Tools with Swift 6.3 or later
-
-## Installation
-
-TripleCLI source version `0.3.0` builds the `triple` executable. The package pins
-Triple library revision `a4fe262f215ff3236a238ba6ac335daf9f792a1e` from its
-public repository. A sibling library checkout is not required.
-
-Release preparation is local. Publish the pinned Triple commit before publishing
-TripleCLI `0.3.0` so a fresh source checkout can resolve its dependency.
-
-The existing [`0.2.1` release tag](https://github.com/mottzi/TripleCLI/releases/tag/0.2.1)
-predates the rebrand and uses the SwiftlyKitCLI module and `swiftlykit`
-executable names. Install `triple` from the source checkout below.
-
-Clone the repository and run the installation script:
+You need an Apple silicon Mac with macOS 13 or later, and Xcode or Command Line
+Tools with Swift 6.3 or later.
 
 ```sh
 git clone https://github.com/mottzi/TripleCLI.git
@@ -33,149 +17,159 @@ cd TripleCLI
 ./install.sh
 ```
 
-The installer builds the checked out source code, installs `triple` to
-`~/.local/bin`, and adds that directory to `PATH` for zsh or Bash when needed.
-Run `./install.sh --help` to see supported installation customization.
-
-### Manual installation
-
-Clone the repository and build the source code:
-
-```sh
-git clone https://github.com/mottzi/TripleCLI.git
-cd TripleCLI
-swift build -c release
-```
-
-Copy the executable to a directory in your home directory:
-
-```sh
-mkdir -p "$HOME/.local/bin"
-cp .build/release/triple "$HOME/.local/bin/triple"
-```
-
-Add that directory to `PATH` for the current shell:
-
-```sh
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Make the change permanent for zsh:
-
-```sh
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.zshrc"
-```
-
-Or for Bash:
-
-```sh
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$HOME/.bash_profile"
-```
-
-Then start a new terminal and confirm the installation:
+The installer builds the source and installs `triple` in `~/.local/bin`. It adds
+that directory to your zsh or Bash startup file when needed. Open a new terminal,
+then check the installation:
 
 ```sh
 triple --version
 ```
 
-## Quick start
-
-Build the only executable product in the current package for x86-64 Linux:
+If your shell cannot find `triple`, add the directory for the current session:
 
 ```sh
-triple build . \
-  --architecture x86_64 \
-  --install-environment \
-  --resolve-dependencies
+export PATH="$HOME/.local/bin:$PATH"
 ```
 
-This command permits `triple` to install missing environment components.
-If the build needs dependency resolution, it also permits `triple` to
-resolve dependencies and retry the build.
+Use `./install.sh --help` for a custom installation directory or to keep your
+shell startup file unchanged.
 
-Select a product and export its executable and resource bundles to an output
-directory:
+## Build your package
+
+Your package must have an executable product and support Linux Musl. Open the
+package directory that contains `Package.swift`, then run:
+
+```sh
+triple build . --install-environment --resolve-dependencies
+```
+
+This builds the package's only executable for x86-64 Linux in release mode.
+The result lists the executable path and its resource bundles.
+
+`--install-environment` allows Triple to install missing Swiftly, Swift
+toolchain, and Static Linux SDK components. `--resolve-dependencies` allows
+SwiftPM to resolve package dependencies when needed. Omit these flags if you
+want the command to stop when either step is required.
+
+Dependency resolution can download packages and update `Package.resolved`.
+SwiftPM runs package manifests and build plugins. Build only packages you trust.
+
+You can pass a package path instead of `.`. If you omit the path, Triple uses
+the current directory.
+
+## Choose what to build
+
+If the package has more than one executable, select one with `--product`.
+Use `aarch64` for ARM64 Linux or `x86_64` for x86-64 Linux:
 
 ```sh
 triple build /path/to/MyPackage \
-  --product MyTool \
-  --architecture x86_64 \
-  --output-path /path/to/output/MyTool \
+  --product MyServer \
+  --architecture aarch64 \
   --install-environment \
   --resolve-dependencies
 ```
 
-The output directory contains the verified executable and any required resource
-bundles. Keep its contents together. An existing output directory is not
-replaced unless you add `--replace-output`.
+Add `--configuration debug` for a debug build. Add `--swift-version 6.3.3` to
+use that exact Swift release. It must support the package and target.
 
-## Commands
+Without `--swift-version`, Triple uses the exact version in the nearest
+`.swift-version` file. That version must be an official stable release that
+supports the package and target. If there is no such file, Triple prefers the
+newest installed compatible Swift toolchain and SDK. Otherwise, it selects the
+newest compatible official release.
 
-| Command | Operation |
+To list executable products or compatible environments:
+
+```sh
+triple products . --install-environment
+triple environments .
+```
+
+## Export the result
+
+Create the parent directory, then choose a new output directory:
+
+```sh
+mkdir -p ./dist
+triple build . \
+  --product MyServer \
+  --output-path ./dist/MyServer \
+  --strip \
+  --install-environment \
+  --resolve-dependencies
+```
+
+The output directory contains the verified executable and its required
+resource bundles. Copy the whole directory to Linux and keep its contents
+together. Run the executable on a Linux machine with the selected architecture.
+
+`--strip` removes symbols from the executable. An existing output directory
+is left unchanged unless you add `--replace-output`. That flag replaces the
+directory and its contents.
+
+## Output and cancellation
+
+Results go to standard output. Progress and errors go to standard error.
+Add `--verbose` for commands and live tool output, or `--json` for one JSON
+result. You cannot use both flags together.
+
+Press Control-C to cancel. Press it again to force exit. Cancellation returns
+exit status `130`; other failures return a nonzero status.
+
+| Status | Meaning |
 | --- | --- |
-| `host-readiness` | Check the Mac and its developer tools. |
-| `install-command-line-tools` | Request Apple's interactive Command Line Tools installer. |
-| `environments` | List compatible Swift environments without installing them. |
-| `assess` | Assess one exact Swift environment without changing it. |
-| `prepare` | Prepare one selected Swift environment. |
-| `products` | List executable products in the package. |
-| `resolve` | Resolve package dependencies. |
-| `build` | Build and verify one executable product. |
-| `clean` | Remove compiled products and intermediate files. |
-| `reset` | Remove the selected SwiftPM scratch directory. |
-| `remove` | Remove an exact toolchain, SDK, or complete environment. |
+| `0` | Success, help, version, or a completed readiness check |
+| `1` | Unexpected failure |
+| `2` | Invalid command or option |
+| `3` | Missing environment components need installation permission |
+| `4` | Environment, dependency, cleanup, or removal failure |
+| `5` | Build or source-stability failure |
+| `6` | Verification, stripping, export, or cleanup after export failure |
+| `7` | Another process owns the required operation |
+| `130` | Cancellation |
 
-Run help for the complete syntax:
+## Help and commands
 
 ```sh
 triple --help
 triple build --help
 ```
 
-## Migration and local development
+| Command | Use it to |
+| --- | --- |
+| `host-readiness` | Check your Mac and developer tools. |
+| `install-command-line-tools` | Open Apple's Command Line Tools installer. |
+| `environments` | List compatible Swift environments without installing them. |
+| `assess` | Check the selected environment without changing it. |
+| `prepare` | Prepare the selected environment. Add `--install-environment` if needed. |
+| `products` | List executable products in a prepared environment. |
+| `resolve` | Resolve package dependencies. |
+| `build` | Build and verify an executable. |
+| `clean` | Remove compiled products and intermediate files. |
+| `reset` | Remove the selected SwiftPM scratch directory. |
+| `remove` | Remove an exact Swift toolchain, SDK, or environment. |
 
-The executable is now `triple`. Replace `swiftlykit` invocations in scripts,
-terminal aliases, and shell completion setup. Regenerate completions with
-`triple --generate-completion-script` after building the new executable.
-The Swift module and runtime are now `TripleCLI` and `TripleCLIRuntime`.
-The library module, facade, error, and event types are `Triple`, `TripleError`,
-and `TripleEvent`. Swiftly remains the external tool used to manage Swift
-installations, so its names and storage options retain that spelling.
+If you used `swiftlykit`, change scripts and aliases to use `triple`.
+Regenerate shell completions with `triple --generate-completion-script zsh`
+or the name of your shell.
 
-The local checkout folders are `TripleCLI` and `Triple`, both inside
-`/Users/berken/Development/Swift/Triple`. Normal builds resolve the pinned library
-revision from GitHub.
+## Uninstall
 
-For development against a sibling checkout named `Triple`, use an editable dependency:
+Installed toolchains and SDKs stay in place when you uninstall the CLI. To
+remove any of those first, read `triple remove --help`.
+
+Remove the executable from its installation directory. For the default path:
 
 ```sh
-swift package edit Triple --path ../Triple
-swift test
-swift package unedit Triple
+rm "$HOME/.local/bin/triple"
 ```
 
-A package path defaults to the current directory. It must identify the exact
-package root that contains `Package.swift`.
+## Support and related tools
 
-Read-only commands do not install components. Commands that can install
-components require `--install-environment`. A build does not resolve package
-dependencies unless you add `--resolve-dependencies`.
+[Report an issue](https://github.com/mottzi/TripleCLI/issues) with your macOS
+version, `triple --version`, the command, and its error output.
 
-## Output and exit status
-
-Normal results use standard output. Progress, warnings, and errors use standard
-error. Add `--verbose` to show redacted commands and live process output.
-
-Add `--json` to write one JSON result for automation. Do not use `--json` and
-`--verbose` together.
-
-| Status | Meaning |
-| --- | --- |
-| `0` | Success, help, version, or a completed readiness check |
-| `2` | Invalid command or option |
-| `3` | Environment preparation requires permission |
-| `4` | Environment, dependency, cleanup, or removal failure |
-| `5` | Build or source-stability failure |
-| `6` | Verification, stripping, export, or completion failure |
-| `7` | Another process owns the required mutation |
-| `130` | Cancellation |
+For a native interface, see [Triple for macOS](https://github.com/mottzi/TripleApp).
+Visit the [Triple website](https://triple.mottzi.codes) for the library, CLI, and
+app. To change or test the CLI, see [Contributing](CONTRIBUTING.md).
