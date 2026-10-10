@@ -40,12 +40,11 @@ Keep editable dependencies out of release validation. Both `Package.swift` and
 
 ## Release preparation
 
-TripleCLI 0.3.0 is prepared locally. The current dependency pin is Triple commit
-`a4fe262f215ff3236a238ba6ac335daf9f792a1e`. Publish that exact library commit
-before publishing a CLI source release that depends on it.
+TripleCLI 0.3.0 pins the published Triple commit
+`a4fe262f215ff3236a238ba6ac335daf9f792a1e`. Before a future CLI release, check
+that its exact library dependency is public.
 
-After the library commit is published, resolve and install from a fresh
-checkout using the public dependency.
+Resolve and install from a fresh checkout using the public dependency.
 
 Run release tests, then rehearse installation from a clean source copy. Check
 version, help, shell completions, and invalid-command exit status. Keep command
@@ -57,5 +56,5 @@ executable. Preserve that tag. The new CLI, module, and runtime names are
 `triple`, `TripleCLI`, and `TripleCLIRuntime`. Swiftly keeps its own name because
 it is the external tool that manages Swift installations.
 
-Use [RELEASE_NOTES.md](RELEASE_NOTES.md) as the prepared source-release notes.
+Use [RELEASE_NOTES.md](RELEASE_NOTES.md) for the source-release notes.
 
