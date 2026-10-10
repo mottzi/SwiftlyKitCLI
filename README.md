@@ -139,28 +139,8 @@ The library module, facade, error, and event types are `Triple`, `TripleError`,
 and `TripleEvent`. Swiftly remains the external tool used to manage Swift
 installations, so its names and storage options retain that spelling.
 
-Existing local checkout folders can keep their old names. Normal builds resolve
-the pinned Triple revision from GitHub. For optional local development against
-a sibling checkout still named `SwiftlyKit`, configure a local SwiftPM mirror:
-
-```sh
-mkdir -p .swiftpm
-ln -s ../../SwiftlyKit .swiftpm/Triple
-swift package config set-mirror \
-  --original https://github.com/mottzi/Triple.git \
-  --mirror "file://$(pwd)/.swiftpm/Triple"
-swift test
-swift build -c release --product triple
-```
-
-The ignored symlink gives the mirror the canonical package identity `triple`,
-so local builds preserve the committed lockfile. The sibling library must contain
-the pinned rebrand commit. Remove the mirror to return to the public dependency:
-
-```sh
-swift package config unset-mirror --original https://github.com/mottzi/Triple.git
-rm .swiftpm/Triple
-```
+The local checkout folders are `TripleCLI` and `Triple`. Normal builds resolve
+the pinned library revision from GitHub.
 
 For development against a sibling checkout named `Triple`, use an editable dependency:
 
