@@ -15,8 +15,11 @@ This CLI depends on the [Triple](https://github.com/mottzi/Triple) Swift library
 ## Installation
 
 TripleCLI source version `0.3.0` builds the `triple` executable. The package pins
-Triple library revision `513be38e4dcb137c7cd19cb76a101d387fd12c4c` from its
+Triple library revision `a4fe262f215ff3236a238ba6ac335daf9f792a1e` from its
 public repository. A sibling library checkout is not required.
+
+Release preparation is local. Publish the pinned Triple commit before publishing
+TripleCLI `0.3.0` so a fresh source checkout can resolve its dependency.
 
 The existing [`0.2.1` release tag](https://github.com/mottzi/TripleCLI/releases/tag/0.2.1)
 predates the rebrand and uses the SwiftlyKitCLI module and `swiftlykit`
